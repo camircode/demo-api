@@ -43,6 +43,12 @@ pipeline {
 
         stage('Build and push') {
             steps {
+                // Computed in Groovy, not in the shell. `${VAR:0:7}` is a bash
+                // substring and Jenkins runs `sh`, which on Debian is dash: it
+                // answers "Bad substitution" and nothing else.
+                script {
+                    env.SHORT_SHA = env.GIT_COMMIT.take(7)
+                }
                 withCredentials([usernamePassword(
                     credentialsId: 'ghcr',
                     usernameVariable: 'GHCR_USER',
@@ -60,9 +66,9 @@ pipeline {
                         docker buildx build \
                           --push \
                           --provenance=false \
-                          --build-arg VERSION="${GIT_COMMIT:0:7}" \
+                          --build-arg VERSION="$SHORT_SHA" \
                           --build-arg COMMIT="${GIT_COMMIT}" \
-                          --tag "$IMAGE:${GIT_COMMIT:0:7}" \
+                          --tag "$IMAGE:$SHORT_SHA" \
                           --metadata-file metadata.json \
                           .
                     '''
