@@ -27,8 +27,15 @@ pipeline {
             steps {
                 // In a container rather than on the agent, so the agent does not
                 // accumulate a toolchain per language it ever built.
+                //
+                // The Debian image here, not the alpine one the Dockerfile
+                // builds with: -race is implemented on top of cgo and needs a C
+                // toolchain, which alpine's golang image does not carry. It
+                // fails with "go: -race requires cgo", and the tempting fix is
+                // to drop -race — giving up the one check that finds concurrency
+                // bugs before a user does.
                 sh '''
-                    docker run --rm -v "$PWD":/src -w /src golang:1.24-alpine \
+                    docker run --rm -e CGO_ENABLED=1 -v "$PWD":/src -w /src golang:1.24 \
                       sh -c 'go vet ./... && go test -race -count=1 ./...'
                 '''
             }
