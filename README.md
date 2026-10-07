@@ -5,12 +5,12 @@ A small HTTP service whose job is to be deployed.
 It exists so the delivery pipeline has something real to carry:
 
 ```
-push here → Jenkins builds and tests → ghcr.io/camircode/demo-api@sha256:…
-          → Jenkins commits that digest to camircode/gitops
+push here → GitHub Actions builds and tests → ghcr.io/camircode/demo-api@sha256:…
+          → GitHub Actions commits that digest to camircode/gitops
           → Argo CD rolls it out → https://api.camir.tech
 ```
 
-Nothing in this repository deploys anything. Jenkins changes one line in the
+Nothing in this repository deploys anything. GitHub Actions changes one line in the
 GitOps repository and Argo CD does the rest, which is why that repository's git
 log is the real deployment history.
 
